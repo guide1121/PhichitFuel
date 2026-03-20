@@ -2,3 +2,4 @@ node_modules/
 admin-keys.json
 .env
 .DS_Store
+seed-google.js

@@ -4,6 +4,9 @@ const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const userInfo = document.getElementById('user-info');
 const userName = document.getElementById('user-name');
+const btnAdmin = document.getElementById('btn-admin');
+
+const ADMIN_UID = 'gSN5wbt7gETCFcVQODsSJAdZRKh2';
 
 let currentUser = null;
 
@@ -15,6 +18,8 @@ export const getAuthToken = async () => {
     }
     return null;
 };
+
+// ...
 
 // จัดการ Login
 if (btnLogin) {
@@ -43,12 +48,22 @@ if (btnLogout) {
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
-        btnLogin.classList.add('hidden');
-        userInfo.classList.remove('hidden');
-        userName.textContent = `สวัสดี, ${user.displayName}`;
+        if(btnLogin) btnLogin.classList.add('hidden');
+        if(userInfo) userInfo.classList.remove('hidden');
+        if(userName) userName.textContent = `สวัสดี, ${user.displayName}`;
+        
+        // โชว์ปุ่ม Admin เฉพาะแอดมินตัวจริง
+        if(btnAdmin) {
+            if(user.uid === ADMIN_UID) {
+                btnAdmin.classList.remove('hidden');
+            } else {
+                btnAdmin.classList.add('hidden');
+            }
+        }
     } else {
         currentUser = null;
-        btnLogin.classList.remove('hidden');
-        userInfo.classList.add('hidden');
+        if(btnLogin) btnLogin.classList.remove('hidden');
+        if(userInfo) userInfo.classList.add('hidden');
+        if(btnAdmin) btnAdmin.classList.add('hidden');
     }
 });

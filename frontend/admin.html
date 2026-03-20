@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ส่วนผู้ดูแลระบบ - Let's Help Phichit</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .admin-container { max-width: 900px; margin: 2rem auto; padding: 1rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--secondary-color); }
+        select { padding: 8px; font-size: 16px; border-radius: 4px; }
+        .btn-update { padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-update:hover { background: var(--primary-dark); }
+        .alert { padding: 15px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Let's Help พิจิตร - แดชบอร์ดผู้ดูแลระบบ 👑</h1>
+        <div id="auth-container">
+            <button id="btn-login" class="btn btn-login">Admin Login (Google)</button>
+            <div id="user-info" class="hidden">
+                <span id="user-name"></span>
+                <button id="btn-logout" class="btn btn-outline">ออกจากระบบ</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container admin-container">
+        <div id="admin-warning" class="alert hidden">
+            ⚠️ คุณยังไม่ได้ล็อกอิน หรือบัญชีคุณไม่มีสิทธิ์ Admin (ถ้าพยายามกดอัปเดตจะ Error)
+        </div>
+
+        <div class="controls">
+            <input type="text" id="search-input" placeholder="ค้นหาชื่อปั๊ม..." class="input-large">
+        </div>
+
+        <div style="overflow-x:auto;" id="table-container" class="hidden">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ชื่อปั๊มน้ำมัน</th>
+                        <th>สถานะภาพรวมปัจจุบัน</th>
+                        <th>บังคับเปลี่ยนสถานะ</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="station-list">
+                    <!-- ข้อมูลจะถูกโหลดมาใส่ตรงนี้ด้วย JS -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+    <script type="module" src="./js/admin.js"></script>
+</body>
+</html>

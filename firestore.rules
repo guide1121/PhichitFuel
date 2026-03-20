@@ -5,11 +5,12 @@ service cloud.firestore {
     // ให้ทุกคน (รวมถึงผู้ที่ไม่ล็อกอิน) อ่านข้อมูลสถานีน้ำมันได้
     match /stations/{stationId} {
       allow read: if true;
-      // การเขียน ต้องทำผ่าน Admin SDK (Backend) เท่านั้น
-      allow write: if false; 
+      // การเขียนโดยตรงจาก Client หน้าเว็บ อนุญาตเฉพาะบัญชี Admin เท่านั้น
+      // คำเตือน Admin: กรุณาเปลี่ยน 'ใส่_UID_ของคุณตรงนี้' เป็น UID ของจริงจากเมนู Authentication
+      allow write: if request.auth != null && request.auth.uid == 'gSN5wbt7gETCFcVQODsSJAdZRKh2'; 
     }
 
-    // สำหรับประวัติการรายงาน ให้เก็บข้อมูลโดย Admin เท่านั้น 
+    // สำหรับประวัติการรายงาน ให้เก็บข้อมูลโดย Node.js Backend เท่านั้น 
     match /reports/{reportId} {
       allow read, write: if false; 
     }

@@ -3,7 +3,7 @@ import { getCurrentUser, getAuthToken } from './auth.js';
 import { initMap, renderStations, getDistance } from './map.js';
 
 // ** TODO: เปลี่ยนเป็น URL ของ Render เมื่อรันจริง **
-const BACKEND_API_URL = 'http://localhost:8080/api/report';
+const BACKEND_API_URL = 'https://phichitfuel.onrender.com/api/report';
 
 let allStations = [];
 let currentSelectedStation = null;

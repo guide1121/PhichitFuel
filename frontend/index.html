@@ -106,9 +106,9 @@
     <!-- Modal เมนู Profile/Login -->
     <div id="profile-modal" class="modal hidden glass-effect">
         <!-- ... เนื้อหาไม่ได้แก้ ... -->
-        <div class="modal-content neumorphic">
-            <span class="close-modal" id="close-profile">&times;</span>
-            <h2 style="color:var(--accent-orange); margin-bottom:15px;">บัญชีผู้ใช้</h2>
+        <div class="modal-content neumorphic" style="position: relative;">
+            <button id="close-profile" style="position: absolute; top: 15px; right: 15px; background: #e5e7eb; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; color: #4b5563; cursor: pointer; box-shadow: 3px 3px 6px rgba(0,0,0,0.1), -3px -3px 6px #ffffff; z-index: 20; display:flex; align-items:center; justify-content:center;">&#x2715;</button>
+            <h2 style="color:var(--accent-orange); margin-bottom:15px; padding-right: 30px;">บัญชีผู้ใช้</h2>
             
             <div id="login-section">
                 <button id="btn-login" class="btn-primary-orange neumorphic-btn" style="width:100%; display:flex; gap:10px; align-items:center; justify-content:center;">
@@ -126,9 +126,9 @@
 
     <!-- Modal สำหรับส่งรายงาน (แยกย่อยมาจาก Bottom Sheet) -->
     <div id="report-modal" class="modal hidden glass-effect" style="align-items: flex-end; padding-bottom: 20px;">
-        <div class="modal-content neumorphic" style="max-height: 80vh; overflow-y: auto;">
-            <span class="close-modal" id="close-report">&times;</span>
-            <h2 style="color:var(--accent-orange); margin-bottom:20px; position:sticky; top:0; background:var(--bg-main); z-index:10; padding-top:10px;">รายงานสถานะ</h2>
+        <div class="modal-content neumorphic" style="max-height: 80vh; overflow-y: auto; position: relative;">
+            <button id="close-report" style="position: absolute; top: 15px; right: 15px; background: #e5e7eb; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; color: #4b5563; cursor: pointer; box-shadow: 3px 3px 6px rgba(0,0,0,0.1), -3px -3px 6px #ffffff; z-index: 20; display:flex; align-items:center; justify-content:center;">&#x2715;</button>
+            <h2 style="color:var(--accent-orange); margin-bottom:20px; position:sticky; top:0; background:var(--bg-main); z-index:10; padding-top:10px; padding-right: 30px;">รายงานสถานะ</h2>
             
             <div id="report-options-container">
                 <!-- ข้อมูลตัวเลือกน้ำมันจะถูกสร้างปุ่มด้วย JS ตรงนี้ -->
@@ -137,6 +137,15 @@
             <div id="report-feedback" class="feedback-msg" style="margin-top:20px; text-align:center;"></div>
         </div>
     </div>
+
+    <!-- หน้าต่างแสดงสถานะกำลังโหลด (Loading Overlay) -->
+    <div id="loading-overlay" class="modal-overlay hidden" style="z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-content neumorphic" style="width: auto; padding: 30px 50px; text-align: center;">
+            <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
+            <strong style="color: var(--accent-orange); font-size: 18px;">กำลังส่งรายงาน...</strong>
+        </div>
+    </div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
 
     <!-- Firebase SDKs -->
     <script type="module" src="./js/firebase.js"></script>

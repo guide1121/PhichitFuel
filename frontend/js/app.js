@@ -48,6 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
     closeProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
     closeReport.addEventListener('click', () => reportModal.classList.add('hidden'));
 
+    // ปิด Modal เมื่อคลิกพื้นที่ว่างรอบนอก (Overlay)
+    reportModal.addEventListener('click', (e) => {
+        if(e.target === reportModal) {
+            reportModal.classList.add('hidden');
+        }
+    });
+
+    profileModal.addEventListener('click', (e) => {
+        if(e.target === profileModal) {
+            profileModal.classList.add('hidden');
+        }
+    });
+
     // ซ่อนแผ่น Bottom Sheet เวลาแตะบนแผนที่
     map.on('click', () => {
         closeBottomSheet();
@@ -203,7 +216,8 @@ async function submitReport(status, fuelType) {
             stationId: selectedStationId,
             fuelType: fuelType,
             status: status,
-            userLocation: userCoords
+            userLat: userCoords.latitude,
+            userLng: userCoords.longitude
         };
 
         const response = await fetch(BACKEND_API_URL, {

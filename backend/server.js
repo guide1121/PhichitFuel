@@ -70,7 +70,9 @@ app.post('/api/report', verifyToken, async (req, res) => {
     res.status(200).json({ message: 'Report processed successfully', result });
   } catch (error) {
     console.error('Report processing error:', error);
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    // เปลี่ยนจาก 500 เป็น 400 กรณีที่ Error เกิดจากระยะทาง หรือการส่งถี่เกินไป (ไม่ใช่เซิร์ฟเวอร์ระเบิด)
+    const statusCode = error.message.includes('คุณอยู่ห่าง') || error.message.includes('คุณส่งรายงานบ่อยเกินไป') ? 400 : 500;
+    res.status(statusCode).json({ error: error.message || 'Internal Server Error' });
   }
 });
 

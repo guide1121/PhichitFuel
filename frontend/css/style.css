@@ -3,22 +3,26 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 :root {
-    /* Orange Theme - สีหลักกระตุ้นพลังงานและความตื่นตัว */
-    --primary-color: #F97316; /* Orange 500 */
-    --primary-dark: #EA580C; /* Orange 600 */
-    --secondary-color: #FFF7ED; /* Orange 50 */
-    --text-main: #1F2937; /* Gray 800 ซีเปียเข้ม ตัดกันชัด */
-    --text-muted: #4B5563;
-    --bg-main: #FAFAF9; /* หน้าเว็บขาวสว่างๆ ไม่จ้าเกิน */
+    --accent-orange: #FF8C00;
+    --accent-orange-light: #FFA740;
+    --accent-orange-dark: #cc7000;
+    --bg-main: #F0F2F5; /* สำหรับ Neumorphism Base */
+    --text-main: #1F2937;
+    --text-muted: #6B7280;
     
-    /* สัญลักษณ์สีบนแผนที่ */
-    --status-green: #22C55E;
-    --status-yellow: #EAB308;
-    --status-red: #EF4444;
-    --status-gray: #9CA3AF;
+    --shadow-light: #ffffff;
+    --shadow-dark: #d1d5db;
+    
+    /* ควบคุมความสูงบนมือถือ (รองรับ Notch) */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    
+    --header-height: 70px;
+    --bottom-nav-height: 70px;
 }
 
 body {
@@ -26,212 +30,337 @@ body {
     background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.5;
-    /* ขนาดอักษรขั้นต่ำ 18px ให้ผู้สูงอายุอ่านง่าย */
-    font-size: 18px; 
+    font-size: 16px; 
+    overflow: hidden; /* App-like: ไม่ให้ body เลื่อนได้ */
 }
 
-/* Header */
-.header {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 1rem;
+/* ---------------------------
+   Glass & Neumorphism Utility
+--------------------------- */
+.glass-effect, .glass-header, .glass-sheet {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.neumorphic {
+    background-color: var(--bg-main);
+    border-radius: 20px;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+}
+
+.neumorphic-inset {
+    background-color: var(--bg-main);
+    border-radius: 12px;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+.neumorphic-btn {
+    border: none;
+    background-color: var(--bg-main);
+    border-radius: 25px;
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    transition: all 0.2s;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+}
+.neumorphic-btn:active {
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.7);
+}
+
+/* ---------------------------
+   Header (App Top Bar)
+--------------------------- */
+.app-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: calc(var(--header-height) + var(--safe-top));
+    padding-top: var(--safe-top);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.header h1 {
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-/* Container */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-/* Buttons (กดง่าย Click Area กว้าง) */
-.btn {
-    padding: 14px 20px;
-    font-size: 18px;
-    font-family: inherit;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    min-width: 120px;
-}
-
-.btn-login { background-color: white; color: var(--primary-color); }
-.btn-login:hover { background-color: #f1f1f1; }
-
-.btn-outline { background-color: transparent; border: 2px solid white; color: white; }
-.btn-outline:hover { background-color: rgba(255,255,255,0.2); }
-
-/* สไตล์ปุ่มใน Modal */
-.btn-report { width: 100%; margin-bottom: 12px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-.btn-green { background-color: var(--status-green); }
-.btn-yellow { background-color: var(--status-yellow); color: #000; text-shadow: none; }
-.btn-red { background-color: var(--status-red); }
-
-/* Controls (Search & Filter) */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.input-large {
-    width: 100%;
-    padding: 14px;
-    font-size: 18px;
-    border: 2px solid #D1D5DB;
-    border-radius: 8px;
-    font-family: inherit;
-}
-.input-large:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-/* Custom Checkbox Size สำหรับผู้สูงวัย */
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    font-size: 18px;
-    cursor: pointer;
-    user-select: none;
-    gap: 10px;
-}
-.checkbox-container input {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-
-/* Map */
-.map-container {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--primary-color);
-}
-#map {
-    height: 60vh;
-    min-height: 400px;
-    width: 100%;
-    z-index: 1; /* z-index ต่ำกว่า modal */
-}
-
-/* Legend */
-.map-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px;
-    background: white;
-    justify-content: center;
-    font-size: 16px;
-}
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 1px solid rgba(0,0,0,0.2);
-}
-.dot-green { background-color: var(--status-green); }
-.dot-yellow { background-color: var(--status-yellow); }
-.dot-red { background-color: var(--status-red); }
-.dot-gray { background-color: var(--status-gray); }
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
+    padding-left: 15px;
+    padding-right: 15px;
     z-index: 1000;
-    left: 0;
-    top: 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); /* Soft drop shadow */
+}
+
+.header-center {
+    text-align: center;
+    flex: 1;
+}
+
+.title-main {
+    color: var(--text-main);
+    font-size: 18px; /* อักษรใหญ่ตามแบบ Mobile First */
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+.title-sub {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+    background: var(--bg-main);
+}
+
+/* ---------------------------
+   Main Map Area
+--------------------------- */
+.map-wrapper {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: var(--bottom-nav-height);
+    background: #e5e3df; /* แบ็คกราวระหวางโหลดแมพ */
+}
+
+#map {
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6);
+    z-index: 1;
+}
+
+/* ปุ่ม Zoom ขวาล่าง */
+.leaflet-control-zoom {
+    margin-bottom: 20px !important;
+    margin-right: 15px !important;
+    border: none !important;
+}
+.leaflet-control-zoom a {
+    background: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    font-size: 24px !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px;
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light) !important;
+    border: none !important;
+}
+
+/* ---------------------------
+   Floating Search
+--------------------------- */
+.floating-search {
+    position: absolute;
+    top: calc(var(--header-height) + var(--safe-top) + 15px);
+    left: 15px; right: 15px;
+    height: 50px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-radius: 25px;
+}
+.search-icon {
+    width: 20px; height: 20px;
+    margin-right: 10px;
+}
+.input-transparent {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text-main);
+    outline: none;
+}
+
+/* ---------------------------
+   Bottom Navigation
+--------------------------- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: calc(var(--bottom-nav-height) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background-color: var(--bg-main);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+}
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    gap: 4px;
+    flex: 1;
+    height: 100%;
+}
+.nav-item.active {
+    color: var(--accent-orange);
+}
+.nav-item span {
+    font-size: 12px;
+    font-weight: 600;
+}
+.nav-icon {
+    width: 24px; height: 24px;
+}
+
+/* ---------------------------
+   Bottom Sheet (Card ปั๊มน้ำมัน)
+--------------------------- */
+.bottom-sheet {
+    position: absolute;
+    bottom: var(--bottom-nav-height);
+    left: 0; right: 0;
+    background: var(--bg-main);
+    border-radius: 24px 24px 0 0;
+    padding: 0 20px 20px 20px;
+    z-index: 1050;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+}
+.bottom-sheet.closed {
+    transform: translateY(calc(100% - 70px)); /* โผล่มาแค่นิดเดียวให้รู้ว่ามี */
+}
+
+/* ค่อยๆ ทำให้โปร่งแสงเป็น Glassmorphic เล็กน้อย */
+.glass-sheet {
+    background: rgba(240, 242, 245, 0.85); /* F0F2F5 with opacity */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 5px;
+    background-color: #cbd5e1;
+    border-radius: 3px;
+    margin: 12px auto 15px auto;
+}
+
+/* ข้อมูลภายใน Card */
+.station-header {
+    margin-bottom: 20px;
+}
+.station-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+.station-meta {
+    display: flex;
+    gap: 10px;
+}
+.meta-tag {
+    font-size: 12px;
+    padding: 6px 12px;
+    color: var(--text-muted);
+}
+
+/* การจัดวางกรอบน้ำมัน */
+.fuel-status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.fuel-card {
+    padding: 15px;
+    text-align: center;
+}
+.fuel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+.fuel-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+}
+.badge-green { background-color: rgba(16, 185, 129, 0.15); color: #059669; }
+.badge-yellow { background-color: rgba(245, 158, 11, 0.15); color: #D97706; }
+.badge-red { background-color: rgba(239, 68, 68, 0.15); color: #DC2626; }
+.badge-gray { background-color: rgba(156, 163, 175, 0.15); color: #4B5563; }
+
+/* ปุ่มรายงานสีส้ม Neumorphic */
+.btn-primary-orange {
+    width: 100%;
+    min-height: 56px;
+    background-color: var(--accent-orange);
+    color: white;
+    font-size: 18px;
+    display: flex;
     justify-content: center;
     align-items: center;
+    /* แสงเงาสำหรับปุ่มสีส้ม */
+    box-shadow: 4px 4px 10px rgba(255, 140, 0, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.8);
 }
-.modal:not(.hidden) {
-    display: flex; /* Override when .hidden is removed */
+.btn-primary-orange:active {
+    box-shadow: inset 4px 4px 8px rgba(204, 112, 0, 0.5), inset -4px -4px 8px rgba(255, 167, 64, 0.8);
 }
-.hidden { display: none !important; }
 
+/* Modals */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+}
 .modal-content {
-    background-color: #fff;
+    background-color: var(--bg-main);
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 24px;
     width: 90%;
     max-width: 400px;
     position: relative;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
-
 .close-modal {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 32px;
-    font-weight: bold;
+    top: 15px; right: 20px;
+    font-size: 30px;
     color: var(--text-muted);
     cursor: pointer;
 }
 
-.instruction { margin: 15px 0; color: var(--text-muted); }
-.report-options hr { margin: 15px 0; border: 0; border-top: 1px solid #eee; }
+.hidden { display: none !important; }
 
-.feedback-msg { margin-top: 15px; text-align: center; font-weight: bold; color: var(--status-red); }
-.feedback-msg.success { color: var(--status-green); }
-
-/* Loading */
-#loading-overlay {
-    position: fixed;
-    top: 0;left:0;width:100%;height:100%;
-    background: rgba(255,255,255,0.8);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
+/* ---------------------------
+   Report Buttons specific
+--------------------------- */
+.btn-report {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
     font-weight: bold;
-    color: var(--primary-dark);
-}
-.spinner {
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid var(--primary-color);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+    color: white;
     margin-bottom: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
-
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-    .header { flex-direction: column; gap: 10px; text-align: center; }
-}
+.btn-green { background-color: #10B981; }
+.btn-yellow { background-color: #F59E0B; color: #fff; }
+.btn-red { background-color: #EF4444; }

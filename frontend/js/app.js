@@ -1,172 +1,234 @@
 import { db, collection, onSnapshot } from './firebase.js';
 import { getCurrentUser, getAuthToken } from './auth.js';
-import { initMap, renderStations, getDistance } from './map.js';
+import { map, renderStations, updateUserLocationMarker } from './map.js';
 
-// ** TODO: เปลี่ยนเป็น URL ของ Render เมื่อรันจริง **
+// URL ของ Backend (เปลี่ยนเป็นโดเมนจริงเมื่ออัปขึ้น Server)
 const BACKEND_API_URL = 'https://phichitfuel.onrender.com/api/report';
 
-let allStations = [];
-let currentSelectedStation = null;
-
-// UI Elements
+// UI Elements 
 const searchInput = document.getElementById('search-input');
-const filterDiesel = document.getElementById('filter-diesel');
+const bottomSheet = document.getElementById('station-bottom-sheet');
+const sheetEmptyState = document.getElementById('sheet-empty-state');
+const sheetDataState = document.getElementById('sheet-data-state');
+const sheetStationName = document.getElementById('sheet-station-name');
+const sheetFuelGrid = document.getElementById('sheet-fuel-grid');
+const reportOptionsContainer = document.getElementById('report-options-container');
+
+const btnOpenReport = document.getElementById('btn-open-report');
 const reportModal = document.getElementById('report-modal');
-const closeModal = document.querySelector('.close-modal');
-const modalStationName = document.getElementById('modal-station-name');
-const reportButtons = document.querySelectorAll('.btn-report');
+const closeReport = document.getElementById('close-report');
+const profileModal = document.getElementById('profile-modal');
+const closeProfile = document.getElementById('close-profile');
+const btnProfile = document.getElementById('btn-profile');
 const reportFeedback = document.getElementById('report-feedback');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-// เริ่มการทำงาน
+let allStations = [];
+let selectedStationId = null;
+let userCoords = null;
+
+// ตั้งค่ารายการน้ำมันทั้งหมดที่ระบบรองรับ (สามารถเพิ่มได้เรื่อยๆ)
+const SUPPORTED_FUELS = [
+    { id: 'Diesel', name: 'ดีเซล (Diesel/B7)' },
+    { id: 'Gasohol95', name: 'แก๊สโซฮอล์ 95' },
+    { id: 'E20', name: 'E20' },
+    { id: 'Gasohol91', name: 'แก๊สโซฮอล์ 91' }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
-    initMap();
+    getUserLocation();
     listenToStations();
-    setupEventListeners();
-});
-
-// ดึงข้อมูล Real-time (onSnapshot)
-function listenToStations() {
-    const stationsRef = collection(db, 'stations');
+    renderReportModalOptions(); // สร้าง UI ปุ่มรีพอร์ตตาม SUPPORTED_FUELS
     
-    // onSnapshot จะทำงานทันทีเมื่อเปิดเว็บ และเมื่อมีข้อมูลใน database เปลี่ยนแปลง
-    onSnapshot(stationsRef, (snapshot) => {
-        const stations = [];
-        snapshot.forEach(doc => {
-            stations.push({ id: doc.id, ...doc.data() });
-        });
-        
-        allStations = stations;
-        applyFiltersAndRender();
-    }, (error) => {
-        console.error("Error listening to stations:", error);
-    });
-}
-
-// ระบบ Filter & Search
-function applyFiltersAndRender() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const isDieselOnly = filterDiesel.checked;
-
-    const filtered = allStations.filter(station => {
-        const matchName = station.name.toLowerCase().includes(searchTerm);
-        
-        let matchDiesel = true;
-        if (isDieselOnly) {
-            // เช็คว่าดีเซลสถานะเป็น Available
-            matchDiesel = station.fuels && station.fuels['Diesel'] && station.fuels['Diesel'].status === 'Available';
-        }
-        
-        return matchName && matchDiesel;
-    });
-
-    renderStations(filtered, openReportModal);
-}
-
-function setupEventListeners() {
+    // ตั้งค่าค้นหา
     searchInput.addEventListener('input', applyFiltersAndRender);
-    filterDiesel.addEventListener('change', applyFiltersAndRender);
 
-    closeModal.addEventListener('click', () => {
-        reportModal.classList.add('hidden');
-        reportFeedback.textContent = '';
+    // ปิด/เปิด Modal ข้อมูล
+    btnProfile.addEventListener('click', () => profileModal.classList.remove('hidden'));
+    closeProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
+    closeReport.addEventListener('click', () => reportModal.classList.add('hidden'));
+
+    // ซ่อนแผ่น Bottom Sheet เวลาแตะบนแผนที่
+    map.on('click', () => {
+        closeBottomSheet();
     });
-
-    reportButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const status = e.target.getAttribute('data-status');
-            const fuel = e.target.getAttribute('data-fuel');
-            submitReport(status, fuel);
-        });
-    });
-}
-
-function openReportModal(station) {
-    if (!getCurrentUser()) {
-        alert("กรุณาเข้าสู่ระบบด้วย Google ก่อนรายงานสถานะครับ");
-        return;
-    }
     
-    currentSelectedStation = station;
-    modalStationName.textContent = `รายงาน: ${station.name}`;
-    reportFeedback.textContent = '';
-    reportModal.classList.remove('hidden');
-}
+    document.querySelector('.sheet-handle').addEventListener('click', () => {
+        bottomSheet.classList.toggle('closed');
+    });
 
-// ขอพิกัด GPS ผู้ใช้ เพื่อส่งไป Backend ยืนยัน Geofencing
-async function getUserLocation() {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error("เบราว์เซอร์ของคุณไม่รองรับการดึงตำแหน่ง (GPS)"));
+    // ปุ่มเปิดหน้ารายงาน
+    btnOpenReport.addEventListener('click', () => {
+        if(!selectedStationId) return;
+        if(!getCurrentUser()) {
+            profileModal.classList.remove('hidden'); // บังคับให้ล็อกอิน
             return;
         }
-        navigator.geolocation.getCurrentPosition(
-            position => resolve({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            }),
-            error => reject(error),
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
+        reportModal.classList.remove('hidden');
+        reportFeedback.textContent = '';
     });
+});
+
+// สร้างปุ่มรายงานสถานะอัตโนมัติ (Dynamic Modal Options)
+function renderReportModalOptions() {
+    reportOptionsContainer.innerHTML = ''; // Clear เก่าออก
+
+    SUPPORTED_FUELS.forEach((fuel, index) => {
+        const fuelBlock = document.createElement('div');
+        fuelBlock.className = 'report-options';
+        fuelBlock.innerHTML = `
+            <div style="font-weight:bold; margin-bottom:10px; font-size:18px; text-align:left;">${fuel.name}</div>
+            <button class="btn-report btn-green" data-status="Available" data-fuel="${fuel.id}">🟢 มีน้ำมัน</button>
+            <button class="btn-report btn-yellow" data-status="Limited" data-fuel="${fuel.id}">🟡 จำกัด/รอนาน</button>
+            <button class="btn-report btn-red" data-status="Out of stock" data-fuel="${fuel.id}">🔴 หมด</button>
+        `;
+        
+        // ขีดเส้นแบ่งใต้แต่ละชุด (ยกเว้นอันสุดท้าย)
+        if (index < SUPPORTED_FUELS.length - 1) {
+            const hr = document.createElement('hr');
+            hr.style = "margin:20px 0; border:1px solid rgba(0,0,0,0.1);";
+            fuelBlock.appendChild(hr);
+        }
+
+        reportOptionsContainer.appendChild(fuelBlock);
+    });
+
+    // ผูกปุ่มหลังจากสร้างเสร็จ
+    document.querySelectorAll('.btn-report').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const status = btn.getAttribute('data-status');
+            const fuelType = btn.getAttribute('data-fuel');
+            submitReport(status, fuelType);
+        });
+    });
+}
+
+// ฟังชั่นดึงข้อมูลจาก Database สดๆ
+function listenToStations() {
+    const stationsRef = collection(db, 'stations');
+    onSnapshot(stationsRef, (snapshot) => {
+        allStations = [];
+        snapshot.forEach(doc => {
+            allStations.push({ id: doc.id, ...doc.data() });
+        });
+        applyFiltersAndRender();
+    });
+}
+
+function applyFiltersAndRender() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const filtered = allStations.filter(st => st.name.toLowerCase().includes(searchTerm));
+    renderStations(filtered, onMarkerClick);
+}
+
+// เมื่อคลิกหมุดแผนที่
+function onMarkerClick(station) {
+    selectedStationId = station.id;
+    sheetStationName.textContent = station.name;
+    
+    // สร้างการ์ดแสดงสถานะน้ำมันแบบ Dynamic บน Bottom Sheet
+    sheetFuelGrid.innerHTML = '';
+    SUPPORTED_FUELS.forEach(fuel => {
+        // ดึงสถานะปัจจุบันของน้ำมันชนิดนั้น หรือตั้งค่าเป็น No data
+        const currentStatus = station.fuels?.[fuel.id]?.status || 'No data';
+        
+        // วาดการ์ดออกมา
+        const cardNode = document.createElement('div');
+        cardNode.className = 'fuel-card neumorphic-inset';
+        cardNode.innerHTML = `
+            <div class="fuel-title">${fuel.name}</div>
+            <div id="status-${fuel.id}" class="fuel-badge"></div>
+        `;
+        sheetFuelGrid.appendChild(cardNode);
+
+        // ใส่สีให้ตรงกับสถานะ
+        updateBadge(`status-${fuel.id}`, currentStatus);
+    });
+
+    // เปิด Bottom Sheet
+    sheetEmptyState.classList.add('hidden');
+    sheetDataState.classList.remove('hidden');
+    bottomSheet.classList.remove('closed');
+    map.panTo([station.location.latitude, station.location.longitude], { animate: true });
+}
+
+function closeBottomSheet() {
+    bottomSheet.classList.add('closed');
+    setTimeout(() => {
+        sheetDataState.classList.add('hidden');
+        sheetEmptyState.classList.remove('hidden');
+    }, 300);
+}
+
+function updateBadge(elId, status) {
+    const el = document.getElementById(elId);
+    el.className = 'fuel-badge'; // Reset classes
+    
+    if(status === 'Available') { el.textContent = '🟢 มีน้ำมัน'; el.classList.add('badge-green'); }
+    else if(status === 'Limited') { el.textContent = '🟡 จำกัด/รอนาน'; el.classList.add('badge-yellow'); }
+    else if(status === 'Out of stock') { el.textContent = '🔴 หมด'; el.classList.add('badge-red'); }
+    else { el.textContent = '⚪ ไม่มีข้อมูล'; el.classList.add('badge-gray'); }
+}
+
+async function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userCoords = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                updateUserLocationMarker(userCoords.latitude, userCoords.longitude);
+            },
+            (error) => { console.warn("ไม่สามารถดึงตำแหน่ง GPS ได้:", error.message); }
+        );
+    }
 }
 
 async function submitReport(status, fuelType) {
-    if (!currentSelectedStation) return;
-    
-    reportFeedback.textContent = '';
-    reportFeedback.className = 'feedback-msg'; // reset
+    if (!userCoords) {
+        reportFeedback.textContent = "โปรดอนุญาตการเข้าถึงตำแหน่ง GPS ของคุณ (กดอนุญาตในเบราว์เซอร์)";
+        reportFeedback.style.backgroundColor = '#fee2e2';
+        reportFeedback.style.color = '#991b1b';
+        return;
+    }
+
+    loadingOverlay.classList.remove('hidden');
 
     try {
-        loadingOverlay.classList.remove('hidden');
-        
-        // 1. ดัน GPS ตรง Client ก่อนส่งให้ลดภาระ Server เบื้องต้น
-        const userLoc = await getUserLocation();
-        const stationLoc = currentSelectedStation.location;
-        
-        if (stationLoc) {
-            const distance = getDistance(userLoc.latitude, userLoc.longitude, stationLoc.latitude, stationLoc.longitude);
-            if (distance > 200) {
-                throw new Error(`คุณไม่ได้อยู่ใกล้ปั๊มนี้ (ห่าง ${Math.round(distance)} เมตร) โปรดเข้าไปในเขตปั๊มก่อนรายงาน`);
-            }
-        }
-
-        // 2. ขอ Token และส่ง API
         const token = await getAuthToken();
+        if (!token) throw new Error("ไม่พบ Token ยืนยันตัวตน เริ่มระบบใหม่");
+
+        const payload = {
+            stationId: selectedStationId,
+            fuelType: fuelType,
+            status: status,
+            userLocation: userCoords
+        };
+
         const response = await fetch(BACKEND_API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                stationId: currentSelectedStation.id,
-                status: status,
-                fuelType: fuelType,
-                userLat: userLoc.latitude,
-                userLng: userLoc.longitude
-            })
+            body: JSON.stringify(payload)
         });
 
         const result = await response.json();
 
-        if (!response.ok) {
-             throw new Error(result.error || 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์');
+        if (response.ok) {
+            reportFeedback.textContent = `ส่งรายงานสำเร็จ! ขอบคุณที่ช่วยเหลือครับ (${result.message})`;
+            reportFeedback.style.backgroundColor = '#dcfce7'; 
+            reportFeedback.style.color = '#166534';
+            setTimeout(() => { reportModal.classList.add('hidden'); }, 2000);
+        } else {
+            throw new Error(result.error || "เกิดข้อผิดพลาดในการรายงาน");
         }
-
-        // 3. สำเร็จ
-        reportFeedback.textContent = 'บันทึกข้อมูลเรียบร้อย ขอบคุณที่ช่วยเหลือครับ!';
-        reportFeedback.classList.add('success');
-        
-        // ปิด Modal อัตโนมัติหลัง 2 วิ
-        setTimeout(() => {
-            reportModal.classList.add('hidden');
-        }, 2000);
-
     } catch (error) {
-        console.error('Report error:', error);
         reportFeedback.textContent = error.message;
-        reportFeedback.classList.remove('success');
+        reportFeedback.style.backgroundColor = '#fee2e2';
+        reportFeedback.style.color = '#991b1b';
     } finally {
         loadingOverlay.classList.add('hidden');
     }

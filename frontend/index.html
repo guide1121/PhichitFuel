@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Let's Help Phichit - ระบบติดตามน้ำมันพิจิตร</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Google Fonts: Noto Sans Thai (อ่านง่ายสำหรับผู้สูงอายุ) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Let's Help พิจิตร</h1>
+        <div id="auth-container">
+            <button id="btn-login" class="btn btn-login">เข้าสู่ระบบด้วย Google</button>
+            <div id="user-info" class="hidden">
+                <span id="user-name">ชื่อผู้ใช้</span>
+                <button id="btn-logout" class="btn btn-outline">ออกจากระบบ</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- แถบค้นหาและกรอง (Search & Filter) -->
+        <section class="controls">
+            <input type="text" id="search-input" placeholder="พิมพ์ชื่อปั๊มที่ต้องการหา..." class="input-large">
+            <label class="checkbox-container">
+                <input type="checkbox" id="filter-diesel">
+                <span class="checkmark"></span>
+                ดูเฉพาะปั๊มที่มีดีเซล
+            </label>
+        </section>
+
+        <!-- แสดงแผนที่ -->
+        <section class="map-container">
+            <div id="map"></div>
+            
+            <!-- ตำนาน (Legend) บอกความหมายสัญลักษณ์ -->
+            <div class="map-legend">
+                <div class="legend-item"><span class="dot dot-green"></span> มีน้ำมัน</div>
+                <div class="legend-item"><span class="dot dot-yellow"></span> มีจำกัด/รอนาน</div>
+                <div class="legend-item"><span class="dot dot-red"></span> น้ำมันหมด</div>
+                <div class="legend-item"><span class="dot dot-gray"></span> ไม่มีข้อมูลล่าสุด</div>
+            </div>
+        </section>
+        
+        <!-- โมดอล หรือ Popup สำหรับรายงาน (Report Modal) -->
+        <div id="report-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="modal-station-name">รายงานสถานะปั๊ม</h2>
+                <p class="instruction">โปรดเลือกสถานะน้ำมันในปั๊มนี้:</p>
+                
+                <div class="report-options">
+                    <button class="btn btn-report btn-green" data-status="Available" data-fuel="Diesel">มีดีเซล</button>
+                    <button class="btn btn-report btn-yellow" data-status="Limited" data-fuel="Diesel">ดีเซล (ใกล้หมด/จำกัด)</button>
+                    <button class="btn btn-report btn-red" data-status="Out of stock" data-fuel="Diesel">ดีเซล หมด!</button>
+                    <hr>
+                    <button class="btn btn-report btn-green" data-status="Available" data-fuel="Gasohol95">มีแก๊สโซฮอล์ 95</button>
+                    <button class="btn btn-report btn-red" data-status="Out of stock" data-fuel="Gasohol95">แก๊สโซฮอล์ 95 หมด!</button>
+                </div>
+                
+                <div id="report-feedback" class="feedback-msg"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Spinner (เต็มจอ) -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p>กำลังดำเนินการ...</p>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- App Logic -->
+    <script type="module" src="./js/map.js"></script>
+    <script type="module" src="./js/app.js"></script>
+</body>
+</html>

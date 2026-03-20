@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ให้ทุกคน (รวมถึงผู้ที่ไม่ล็อกอิน) อ่านข้อมูลสถานีน้ำมันได้
+    match /stations/{stationId} {
+      allow read: if true;
+      // การเขียน ต้องทำผ่าน Admin SDK (Backend) เท่านั้น
+      allow write: if false; 
+    }
+
+    // สำหรับประวัติการรายงาน ให้เก็บข้อมูลโดย Admin เท่านั้น 
+    match /reports/{reportId} {
+      allow read, write: if false; 
+    }
+  }
+}

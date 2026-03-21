@@ -6,8 +6,8 @@ export const map = L.map('map', {
 // เพิ่มปุ่ม Zoom ขวาล่าง
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-// ใช้งาน Google Maps Hybrid (Satellite + Roads)
-L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+// ใช้งาน Google Maps (Standard Map) เพื่อให้หมุดสว่างขึ้น
+L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
     maxZoom: 20,
     subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
 }).addTo(map);

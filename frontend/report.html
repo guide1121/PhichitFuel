@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>รายงานสถานะน้ำมัน</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Google Fonts: Noto Sans Thai -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .report-header-area {
+            padding: calc(var(--safe-top) + 20px) 15px 15px 15px;
+            background-color: var(--bg-main);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .report-title-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .btn-back {
+            background-color: #2D3748;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+        }
+        .btn-back svg { stroke: #fff; }
+        .report-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        
+        .report-subtitle {
+            margin-bottom: 15px;
+        }
+        .report-subtitle h3 {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .report-subtitle p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .report-map-container {
+            margin: 0 15px 20px 15px;
+            height: 200px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            position: relative;
+        }
+        #report-mini-map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .station-list-container {
+            padding: 0 15px;
+            padding-bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 30px);
+        }
+        
+        .station-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: var(--bg-main);
+            border-radius: 16px;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .station-list-item:active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            transform: scale(0.98);
+        }
+        
+        .st-info { display: flex; align-items: center; gap: 12px; }
+        .st-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .st-dot.red { background-color: #EF4444; }
+        .st-dot.gray { background-color: #9CA3AF; }
+        
+        .st-details h4 { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .st-details p { font-size: 12px; color: var(--text-muted); }
+        
+        .st-distance {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-orange);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .st-distance svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <div class="report-header-area">
+        <div class="report-title-row">
+            <button class="btn-back" onclick="window.location.href='index.html'">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <h1 class="report-title">รายงานสถานะน้ำมัน</h1>
+        </div>
+        
+        <div class="report-subtitle">
+            <h3>เลือกปั๊มน้ำมันใกล้คุณ</h3>
+            <p>แอปจะใช้ GPS เพื่อแสดงปั๊มที่อยู่ใกล้ที่สุด</p>
+        </div>
+    </div>
+    
+    <div class="report-map-container">
+        <div id="report-mini-map"></div>
+    </div>
+    
+    <div class="station-list-container" id="station-list">
+        <!-- List items will be generated here -->
+        <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+            กำลังค้นหาปั๊มน้ำมันใกล้คุณ...
+        </div>
+    </div>
+
+    <!-- แถบนำทางด้านล่าง (Bottom Navigation) -->
+    <nav class="bottom-nav neumorphic-nav">
+        <a href="index.html" class="nav-item">
+            <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20L3 17V4L9 7M9 20L15 17M9 20V7M15 17L21 20V7L15 4M15 17V4M9 7L15 4"/></svg>
+            <span>แผนที่</span>
+        </a>
+        
+        <div class="nav-item-center">
+            <a href="report.html" class="btn-orange-circle-wrapper" style="text-decoration: none; display: flex; flex-direction: column; align-items: center;">
+                <button id="btn-nav-report" class="btn-orange-circle" style="pointer-events: none; transform: scale(1.05); box-shadow: inset 4px 4px 8px rgba(204, 112, 0, 0.5), inset -4px -4px 8px rgba(255, 167, 64, 0.8);">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <span class="center-label">รายงาน</span>
+            </a>
+        </div>
+
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>ข้อมูล</span>
+        </a>
+    </nav>
+    
+    <!-- หน้าต่างรายงานแบบใหม่ (Bottom Sheet) -->
+    <div id="report-overlay" class="report-overlay"></div>
+    <div id="report-bottom-sheet" class="report-bottom-sheet">
+        <div class="sheet-handle" style="margin-top: 12px; margin-bottom: 0;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; position:sticky; top:0; background:var(--bg-main); z-index:10; padding-bottom:10px; border-bottom: 1px solid #e5e7eb;">
+            <div>
+                <h2 style="color:var(--accent-orange); font-size:22px; margin:0;">รายงานสถานะ</h2>
+                <p id="report-station-name" style="font-size:14px; color:var(--text-main); margin:4px 0 0 0; font-weight:bold;"></p>
+                <p id="report-station-address" style="font-size:12px; color:var(--text-muted); margin:0;"></p>
+            </div>
+            <button id="close-report-sheet" style="background:#f3f4f6; border:none; width:32px; height:32px; border-radius:50%; font-size:16px; font-weight:bold; color:#4b5563; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#x2715;</button>
+        </div>
+        
+        <p style="font-size: 13px; color: #6b7280; margin-top: 15px; margin-bottom: 10px;">กรุณาเลือกสถานะสำหรับชนิดน้ำมันที่คุณทราบ:</p>
+        
+        <div id="report-options-container">
+            <!-- ข้อมูลตัวเลือกน้ำมันรูปแบบ Grid จะสร้างใน JS ตรงนี้ -->
+        </div>
+        
+        <div id="report-feedback" class="feedback-msg" style="margin-top:15px; text-align:center; padding: 10px; border-radius: 8px; font-size:14px;"></div>
+        
+        <!-- ปุ่ม Confirm ป้องกันการส่งแบบไม่ตั้งใจ (Confirm Step) -->
+        <button id="btn-confirm-report" class="btn-confirm-report">
+            ยืนยันการรายงาน
+        </button>
+    </div>
+    
+    <!-- Modal Loading -->
+    <div id="loading-overlay" class="modal-overlay hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div class="modal-content neumorphic" style="width: auto; padding: 30px 50px; text-align: center;">
+            <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
+            <strong style="color: var(--accent-orange); font-size: 18px;">กำลังส่งรายงาน...</strong>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="./js/firebase.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- App Logic -->
+    <script type="module" src="./js/report.js"></script>
+</body>
+</html>

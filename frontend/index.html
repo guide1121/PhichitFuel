@@ -55,6 +55,11 @@
             <input type="text" id="search-input" placeholder="พิมพ์ชื่อปั๊ม หรือ อำเภอ..." class="input-transparent">
         </div>
 
+        <!-- ปุ่มคู่มือการใช้งานแบบลอย -->
+        <a href="guide.html" class="btn-guide-floating neumorphic">
+            📖 <span class="guide-text">คู่มือการใช้งาน</span>
+        </a>
+
         <!-- คำอธิบายสัญลักษณ์ (Legend) -->
         <div id="map-legend" style="position: absolute; bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 65px); left: 15px; z-index: 1000; background: white; padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px;">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">สถานะน้ำมัน</div>
@@ -111,20 +116,16 @@
 
     <!-- แถบนำทางด้านล่าง (Bottom Navigation) -->
     <!-- ... ระงับการเลือก nav ... -->
-    <nav class="bottom-nav neumorphic-nav">
+    <nav class="bottom-nav">
         <a href="index.html" class="nav-item active">
             <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20L3 17V4L9 7M9 20L15 17M9 20V7M15 17L21 20V7L15 4M15 17V4M9 7L15 4"/></svg>
             <span>แผนที่</span>
         </a>
         
-        <div class="nav-item-center">
-            <a href="report.html" class="btn-orange-circle-wrapper" style="text-decoration: none; display: flex; flex-direction: column; align-items: center;">
-                <button id="btn-nav-report" class="btn-orange-circle" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                </button>
-                <span class="center-label">รายงาน</span>
-            </a>
-        </div>
+        <a href="report.html" class="nav-item">
+            <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>รายงาน</span>
+        </a>
 
         <a href="data.html" class="nav-item">
             <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
@@ -245,6 +246,13 @@
                         <br>
                         <strong>Instagram:</strong> <a href="https://instagram.com/nphr._" target="_blank" style="color: #4b5563; text-decoration: underline;">@nphr._</a>
                     </p>
+                </div>
+
+                <div class="about-section" style="margin-top: 20px; padding: 15px; background: #fff8f1; border-radius: 12px; border: 1px solid #ffe4cc; text-align: center;">
+                    <h3 style="color: #c26100; font-size: 16px; margin-top: 0; margin-bottom: 8px;">ไม่รู้วิธีใช้งาน?</h3>
+                    <a href="guide.html" style="display: inline-block; background: #c26100; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: bold;">
+                        📖 ดูคู่มือการใช้งาน
+                    </a>
                 </div>
 
                 <div class="about-developer" style="margin-top: 25px; text-align: center; padding-bottom: 10px;">

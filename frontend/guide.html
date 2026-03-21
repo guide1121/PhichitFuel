@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>คู่มือการใช้งาน - Let's Help พิจิตร</title>
+    
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .guide-container {
+            padding: 20px 15px;
+            padding-bottom: 50px;
+            padding-top: calc(var(--header-height) + var(--safe-top) + 20px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .guide-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: 1px solid #f3f4f6;
+        }
+        .guide-card h2 {
+            color: var(--accent-orange);
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .step-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-orange);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-content h3 {
+            font-size: 15px;
+            margin: 0 0 5px 0;
+            color: var(--text-main);
+        }
+        .step-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="scroll-page">
+    
+    <!-- Header -->
+    <header class="app-header glass-header" style="background: white; border-bottom: 1px solid #e5e7eb;">
+        <div class="header-left">
+            <a href="index.html" style="text-decoration: none; color: var(--text-main); display: flex; align-items: center;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span style="font-weight: 600; margin-left: 5px;">กลับ</span>
+            </a>
+        </div>
+        <div class="header-center">
+            <h1 class="title-main">คู่มือการใช้งาน</h1>
+        </div>
+        <div class="header-right" style="width: 50px;"></div>
+    </header>
+
+    <div class="guide-container">
+        
+        <!-- Section 1: แผนที่และสัญลักษณ์ -->
+        <div class="guide-card">
+            <h2>📍 แผนที่และสัญลักษณ์</h2>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">
+                คุณสามารถตรวจสอบสถานะน้ำมันได้จากสีของปักหมุดบนแผนที่ ดังนี้:
+            </p>
+            <div class="legend-grid">
+                <div class="legend-item"><div class="dot" style="background: #10B981;"></div> มีน้ำมันปกติ</div>
+                <div class="legend-item"><div class="dot" style="background: #F59E0B;"></div> น้ำมันมีจำกัด</div>
+                <div class="legend-item"><div class="dot" style="background: #EF4444;"></div> น้ำมันหมด</div>
+                <div class="legend-item"><div class="dot" style="background: #6B7280;"></div> ไม่ทราบข้อมูล</div>
+            </div>
+        </div>
+
+        <!-- Section 2: ขั้นตอนการรายงาน -->
+        <div class="guide-card">
+            <h2>📝 ขั้นตอนการช่วยแจ้งสถานะ</h2>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>เลือกปั๊มน้ำมัน</h3>
+                    <p>กดที่ปักหมุดบนแผนที่ หรือค้นหาชื่อปั๊มจากช่องค้นหาด้านบน</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>กดปุ่ม "รายงานสถานะ"</h3>
+                    <p>เมื่อกดเลือกปั๊มแล้ว จะมีแถบข้อมูลปรากฏขึ้นด้านล่าง ให้กดปุ่มสีส้มเพื่อเริ่มรายงาน</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>เลือกสถานะน้ำมัน</h3>
+                    <p>เลือกสถานะ (มี/หมด/จำกัด) สำหรับน้ำมันแต่ละชนิดที่คุณทราบข้อมูล</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>ยืนยันข้อมูล</h3>
+                    <p>ตรวจสอบความถูกต้องและกด "ยืนยันการรายงาน" ข้อมูลจะอัปเดตบนแผนที่ทันที</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: การเข้าสู่ระบบ -->
+        <div class="guide-card" id="login-guide">
+            <h2>🔐 การเข้าสู่ระบบและเงื่อนไข</h2>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                เพื่อความน่าเชื่อถือของข้อมูลและป้องกันการสแปม ระบบจึงกำหนดเงื่อนไขดังนี้:
+            </p>
+            <ul style="font-size: 14px; color: var(--text-main); line-height: 1.8; padding-left: 20px; border-left: 3px solid #E5E7EB; list-style: none;">
+                <li>✅ <strong>ต้องเข้าสู่ระบบ</strong>: เฉพาะผู้ที่เข้าสู่ระบบผ่าน Google เท่านั้นที่สามารถส่งรายงานได้</li>
+                <li>🛡️ <strong>ความปลอดภัย</strong>: เราเก็บเฉพาะชื่อและอีเมลเพื่อยืนยันตัวตนเท่านั้น</li>
+                <li>📍 <strong>การเข้าถึงตำแหน่ง</strong>: พิกัดของคุณจะถูกใช้เพื่อยืนยันว่าคุณอยู่ใกล้พื้นที่ปั๊มจริงขณะรายงาน (ต้องอยู่ในระยะ 200 เมตร)</li>
+                <li>🚫 <strong>การห้ามสแปม</strong>: หากพบการรายงานเท็จซ้ำซ้อน บัญชีอาจถูกระงับสิทธิ์การรายงาน</li>
+            </ul>
+        </div>
+
+        <!-- Section 4: หน้าข้อมูลและสถิติ -->
+        <div class="guide-card">
+            <h2>📊 การดูข้อมูลภาพรวม</h2>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+                กดแถบเมนู <strong>"ข้อมูล"</strong> ด้านล่างเพื่อดู:
+                <br>• จำนวนปั๊มที่มีน้ำมัน/น้ำมันหมด ทั่วทั้งพิจิตร
+                <br>• รายชื่อปั๊มน้ำมันที่อยู่ใกล้ตำแหน่งของคุณที่สุด
+                <br>• สถิติการช่วยรายงานของคุณ (เมื่อเข้าสู่ระบบ)
+            </p>
+        </div>
+
+        <!-- Section 4: หมายเหตุ -->
+        <div class="guide-card" style="background: #fff8f1; border-color: #ffe4cc;">
+            <h2 style="color: #c26100;">💡 ข้อควรรู้</h2>
+            <p style="font-size: 13px; color: #854d0e; line-height: 1.6; margin: 0;">
+                ข้อมูลในระบบมาจากการรายงานของผู้ใช้งานอาร์สาัคร (Crowdsourcing) กรุณาตรวจสอบเวลาที่อัปเดตล่าสุดเพื่อความมั่นใจ หากพบข้อมูลไม่ถูกต้อง คุณสามารถช่วยรายงานสถานะใหม่ที่ถูกต้องได้ทันทีครับ
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="index.html" class="btn-confirm-report" style="display: inline-block; text-decoration: none; width: auto; padding: 12px 30px;">
+                เริ่มใช้งานเลย
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

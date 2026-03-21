@@ -26,24 +26,36 @@
 }
 
 body {
-    font-family: 'Noto Sans Thai', sans-serif;
+    font-family: 'Prompt', sans-serif;
     background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.5;
     font-size: 16px; 
-    overflow: hidden; /* App-like: ไม่ให้ body เลื่อนได้ */
+    overflow: hidden; /* Default: Map page doesn't scroll */
+}
+
+/* Class for pages that SHOULD scroll (Data, Report, Admin) */
+.scroll-page {
+    overflow-y: auto !important;
+    height: auto !important;
+}
+.scroll-page body {
+    overflow-y: auto !important;
+    height: auto !important;
 }
 
 /* ---------------------------
    Glass & Neumorphism Utility
 --------------------------- */
 .glass-effect, .glass-header, .glass-sheet {
-    background: var(--bg-main);
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .neumorphic {
     background-color: var(--bg-main);
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
@@ -57,7 +69,7 @@ body {
     border: none;
     background-color: var(--accent-orange);
     color: white;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.2s;
     cursor: pointer;
@@ -150,7 +162,7 @@ body {
     height: 44px !important;
     line-height: 44px !important;
     font-size: 24px !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
     margin-bottom: 8px;
     box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light) !important;
     border: none !important;
@@ -264,14 +276,14 @@ body {
     bottom: var(--bottom-nav-height);
     left: 0; right: 0;
     background: var(--bg-main);
-    border-radius: 16px 16px 0 0;
+    border-radius: 12px 12px 0 0;
     padding: 0 20px 20px 20px;
     z-index: 1050;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 -4px 16px rgba(0,0,0,0.05); /* replace fuzzy shadow */
 }
 .bottom-sheet.closed {
-    transform: translateY(calc(100% - 110px)); /* โผล่มาให้เห็นหัวข้อ กรุณาเลือกปั๊ม */
+    transform: translateY(100%); /* ซ่อนหายไปเลยเวลาปิด */
 }
 
 /* เปลี่ยนจาก Glassmorphic เป็นสีทึบ */
@@ -327,7 +339,7 @@ body {
 .fuel-badge {
     display: inline-block;
     padding: 6px 12px;
-    border-radius: 20px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 700;
 }
@@ -366,7 +378,7 @@ body {
 .modal-content {
     background-color: var(--bg-main);
     padding: 25px;
-    border-radius: 16px;
+    border-radius: 12px;
     width: 90%;
     max-width: 400px;
     position: relative;
@@ -388,7 +400,7 @@ body {
 .btn-report {
     width: 100%;
     min-height: 50px;
-    border-radius: 12px;
+    border-radius: 8px;
     border: none;
     font-size: 16px;
     font-weight: bold;
@@ -409,7 +421,7 @@ body {
     bottom: 0; left: 0; right: 0;
     max-height: 85vh;
     background: var(--bg-main);
-    border-radius: 20px 20px 0 0;
+    border-radius: 12px 12px 0 0;
     padding: 0 20px 20px 20px;
     z-index: 2500;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
@@ -435,7 +447,7 @@ body {
 .fuel-report-group {
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 15px;
     margin-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
@@ -445,6 +457,11 @@ body {
     font-weight: bold;
     color: var(--text-main);
     margin-bottom: 12px;
+}
+
+/* ขยับปุ่ม Zoom และ Locate Me ขึ้นจากขอบล่าง */
+.leaflet-bottom.leaflet-right {
+    margin-bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 20px) !important;
 }
 .report-btn-row {
     display: flex;
@@ -483,7 +500,7 @@ body {
     font-size: 16px;
     font-weight: bold;
     border: none;
-    border-radius: 12px;
+    border-radius: 8px;
     margin-top: 15px;
     box-shadow: 0 4px 12px rgba(255,140,0,0.3);
     cursor: pointer;
@@ -491,4 +508,288 @@ body {
 .btn-confirm-report:active {
     transform: translateY(2px);
     box-shadow: 0 2px 6px rgba(255,140,0,0.3);
+}
+
+/* =========================================
+   Data Tab (ข้อมูล) Custom Styles
+   ========================================= */
+
+.data-container {
+    padding: 20px 15px;
+    padding-bottom: 120px; /* เผื่อ Bottom Nav 80px + margin */
+    padding-top: calc(var(--header-height) + var(--safe-top) + 20px);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 1. Profile Section */
+.data-profile-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    position: relative;
+}
+.data-profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #FFF3E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid var(--accent-orange);
+    overflow: hidden;
+}
+.data-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.data-profile-info {
+    flex: 1;
+    min-width: 0; /* ช่วยให้การเว้นบรรทัดหรือจุดไข่ปลาทำงานได้ใน flex */
+}
+.data-profile-name {
+    font-size: 18px; /* ลดลงนิดนึงเผื่อชื่อยาว */
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.data-profile-stats {
+    color: var(--accent-orange);
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.data-btn-logout {
+    background: #F3F4F6;
+    color: #4B5563;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0; /* ไม่ให้ปุ่มถูกบีบ */
+}
+
+/* 2. Crisis Dashboard */
+.data-section-mt { margin-top: 30px; }
+.data-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.data-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.data-stat-card {
+    border-radius: 12px;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+.data-stat-card.green {
+    background-color: #ECFDF5;
+    border-color: #D1FAE5;
+}
+.data-stat-card.red {
+    background-color: #FEF2F2;
+    border-color: #FEE2E2;
+}
+.data-stat-title {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.data-stat-card.green .data-stat-title { color: #059669; }
+.data-stat-card.red .data-stat-title { color: #DC2626; }
+
+.data-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.data-stat-card.green .data-stat-value { color: #047857; }
+.data-stat-card.red .data-stat-value { color: #B91C1C; }
+
+/* 3. List View */
+.data-filter-btn {
+    background: #F3F4F6;
+    color: #4B5563;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.data-station-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.data-list-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.02);
+}
+.data-list-card:active {
+    transform: scale(0.98);
+}
+.data-list-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.data-list-station-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    max-width: 75%;
+}
+.data-list-station-dist {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-orange);
+    white-space: nowrap;
+}
+
+.data-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.data-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    color: #4B5563;
+}
+.data-status-pill.avail { color: #059669; border-color: #10B981; background: #ECFDF5; }
+.data-status-pill.limit { color: #D97706; border-color: #F59E0B; background: #FFFBEB; }
+.data-status-pill.out { color: #DC2626; border-color: #EF4444; background: #FEF2F2; }
+
+/* 4. About Modal & Info Button */
+.btn-info-floating {
+    position: absolute;
+    left: 15px;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: var(--accent-orange);
+    transition: all 0.2s;
+    outline: none;
+}
+.btn-info-floating:active {
+    transform: scale(0.95);
+    background: #f9fafb;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000; /* Higher than map controls and bottom sheet */
+}
+
+.about-modal {
+    position: relative;
+    width: 92%;
+    max-width: 500px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    animation: modal-slide-up 0.3s ease-out;
+}
+
+@keyframes modal-slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.about-body {
+    padding: 10px 24px 24px;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+}
+
+.about-footer-sticky {
+    padding: 15px 24px;
+    background: white;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: center;
+}
+
+.about-section {
+    margin-bottom: 20px;
+}
+.about-section h3 {
+    font-weight: 700;
+    margin-top: 0;
 }

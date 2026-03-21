@@ -14,7 +14,7 @@ L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
 
 // สร้างไอคอน Leaflet ทรงกลมลอย ล้อมกรอบรอบถังน้ำมันเพื่อความโฉบเฉี่ยว
 export function createCustomIcon(color) {
-    const fuelSvg = `<svg viewBox="0 0 24 24" fill="white" style="width:18px; height:18px;"><path d="M19 19V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V19H19ZM7 5H17V19H7V5ZM9 7H15V11H9V7ZM6 20H18V22H6V20Z"/></svg>`;
+    const fuelSvg = `<svg viewBox="0 0 24 24" fill="white" style="width:20px; height:20px;"><path d="M19.36 7H18V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16h12v-7a1 1 0 0 0-1-1h-1v4a2 2 0 0 1-2 2v2h10v-10.86a2.64 2.64 0 0 0-2.64-2.14zM12 11H6V5h6v6zm7.36 1a1.14 1.14 0 0 1-1.14-1.14V9h1.36a1.14 1.14 0 0 1 1.14 1.14v.72a1.14 1.14 0 0 1-1.36 1.14z"/></svg>`;
 
     return L.divIcon({
         className: 'custom-div-icon',

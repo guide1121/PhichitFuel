@@ -59,9 +59,8 @@ function initMap() {
         scrollWheelZoom: false
     }).setView([16.442, 100.349], 12);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        attribution: '&copy; Google Maps',
         maxZoom: 20
     }).addTo(map);
 }
@@ -182,6 +181,13 @@ function renderList() {
         const item = document.createElement('div');
         item.className = 'station-list-item';
         
+        // เช็คระยะทางเกิน 200m (0.2km) หรือไม่
+        const outOfRange = st.distance !== null && st.distance > 0.2;
+        if (outOfRange) {
+            item.style.opacity = '0.5';
+            item.style.pointerEvents = 'none';
+        }
+
         let distText = '';
         if (st.distance !== null && st.distance !== Infinity) {
             distText = `${st.distance.toFixed(1)} กม.`;
@@ -195,17 +201,19 @@ function renderList() {
         
         item.innerHTML = `
             <div class="st-info">
-                <div class="st-dot ${st.distance && st.distance <= 2 ? 'red' : 'gray'}"></div>
+                <div class="st-dot ${st.distance && st.distance <= 0.2 ? 'red' : 'gray'}"></div>
                 <div class="st-details">
-                    <h4>${st.name}</h4>
-                    <p>${subText}</p>
+                    <h4 style="color: ${outOfRange ? '#9CA3AF' : 'var(--text-main)'}">${st.name}</h4>
+                    <p style="color: ${outOfRange ? '#9CA3AF' : 'var(--text-muted)'}">${subText}</p>
                 </div>
             </div>
-            <div class="st-distance">
-                ${distText}
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+            <div class="st-distance" style="flex-direction: column; align-items: flex-end;">
+                <div style="color: ${outOfRange ? '#EF4444' : 'var(--accent-orange)'}; display:flex; align-items:center; gap:4px;">
+                    ${distText}
+                    ${!outOfRange ? `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>` : ''}
+                </div>
+                ${outOfRange ? `<span style="font-size: 10px; color: #EF4444; margin-top: 4px;">อยู่นอกระยะรายงาน (เกิน 200 ม.)</span>` : ''}
+                ${!outOfRange && st.distance === null ? `<span style="font-size: 10px; color: #F59E0B; margin-top: 4px;">กรุณาเปิด GPS</span>` : ''}
             </div>
         `;
         

@@ -8,7 +8,6 @@ const BACKEND_API_URL = 'https://phichitfuel.onrender.com/api/report';
 // UI Elements 
 const searchInput = document.getElementById('search-input');
 const bottomSheet = document.getElementById('station-bottom-sheet');
-const sheetEmptyState = document.getElementById('sheet-empty-state');
 const sheetDataState = document.getElementById('sheet-data-state');
 const sheetStationName = document.getElementById('sheet-station-name');
 const sheetFuelGrid = document.getElementById('sheet-fuel-grid');
@@ -51,6 +50,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // ปิด/เปิด Modal ข้อมูล
     btnProfile.addEventListener('click', () => profileModal.classList.remove('hidden'));
     closeProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
+
+    // About Modal (Formal)
+    const btnInfo = document.getElementById('btn-info');
+    const aboutOverlay = document.getElementById('about-overlay');
+    const closeAbout = document.getElementById('close-about');
+    const btnCloseAboutFooter = document.getElementById('btn-close-about-footer');
+
+    if (btnInfo && aboutOverlay) {
+        btnInfo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log("Opening About Modal...");
+            aboutOverlay.classList.remove('hidden');
+        });
+    }
+    if (closeAbout) {
+        closeAbout.addEventListener('click', () => aboutOverlay.classList.add('hidden'));
+    }
+    if (btnCloseAboutFooter) {
+        btnCloseAboutFooter.addEventListener('click', () => aboutOverlay.classList.add('hidden'));
+    }
+    if (aboutOverlay) {
+        aboutOverlay.addEventListener('click', (e) => {
+            if (e.target === aboutOverlay) aboutOverlay.classList.add('hidden');
+        });
+    }
+
     closeReportSheet.addEventListener('click', closeReportUI);
     reportOverlay.addEventListener('click', closeReportUI);
 
@@ -159,7 +184,6 @@ function listenToStations() {
             allStations.push({ id: doc.id, ...doc.data() });
         });
         applyFiltersAndRender();
-        processAndRenderNearestStations();
     });
 }
 
@@ -173,51 +197,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     return R * c; 
 }
 
-function processAndRenderNearestStations() {
-    const container = document.getElementById('nearest-stations-list');
-    if (!container) return;
-    
-    if (!userCoords) {
-        container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:10px;">กรุณาเปิด GPS เพื่อดูปั๊มใกล้เคียง</div>';
-        return;
-    }
-    
-    allStations.forEach(st => {
-        st.distance = getDistanceFromLatLonInKm(userCoords.latitude, userCoords.longitude, st.location?.latitude, st.location?.longitude);
-    });
-    
-    const sorted = [...allStations].sort((a, b) => a.distance - b.distance).slice(0, 10);
-    
-    container.innerHTML = '';
-    sorted.forEach(st => {
-        if(st.distance === Infinity) return;
-        const item = document.createElement('div');
-        item.style.padding = '12px';
-        item.style.marginBottom = '8px';
-        item.style.backgroundColor = 'white';
-        item.style.borderRadius = '12px';
-        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-        item.style.display = 'flex';
-        item.style.justifyContent = 'space-between';
-        item.style.alignItems = 'center';
-        item.style.cursor = 'pointer';
-        
-        item.innerHTML = `
-            <div>
-                <strong style="color:var(--text-main); font-size:14px;">${st.name}</strong>
-                <div style="font-size:12px; color:var(--text-muted);">${st.brand || 'OTHER'}</div>
-            </div>
-            <div style="color:var(--accent-orange); font-weight:bold; font-size:14px;">${st.distance.toFixed(1)} กม.</div>
-        `;
-        
-        item.addEventListener('click', () => {
-             onMarkerClick(st);
-             map.panTo([st.location.latitude, st.location.longitude], { animate: true });
-        });
-        
-        container.appendChild(item);
-    });
-}
+
 
 function applyFiltersAndRender() {
     const searchTerm = searchInput.value.toLowerCase();
@@ -331,18 +311,12 @@ function onMarkerClick(station) {
     });
 
     // เปิด Bottom Sheet
-    sheetEmptyState.classList.add('hidden');
-    sheetDataState.classList.remove('hidden');
     bottomSheet.classList.remove('closed');
     map.panTo([station.location.latitude, station.location.longitude], { animate: true });
 }
 
 function closeBottomSheet() {
     bottomSheet.classList.add('closed');
-    setTimeout(() => {
-        sheetDataState.classList.add('hidden');
-        sheetEmptyState.classList.remove('hidden');
-    }, 300);
 }
 
 function updateBadge(elId, status) {
@@ -365,7 +339,6 @@ async function getUserLocation() {
                 };
                 updateUserLocationMarker(userCoords.latitude, userCoords.longitude);
                 map.setView([userCoords.latitude, userCoords.longitude], 14); // ซูมไปที่ตำแหน่งปัจจุบัน
-                processAndRenderNearestStations();
             },
             (error) => { console.warn("ไม่สามารถดึงตำแหน่ง GPS ได้:", error.message); }
         );

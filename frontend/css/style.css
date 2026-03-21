@@ -793,3 +793,32 @@ body {
     font-weight: 700;
     margin-top: 0;
 }
+
+/* Floating Guide Button */
+.btn-guide-floating {
+    position: absolute;
+    top: calc(var(--header-height) + var(--safe-top) + 75px);
+    right: 15px;
+    z-index: 900;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    border: 1px solid #f3f4f6;
+}
+.btn-guide-floating:active {
+    transform: scale(0.95);
+}
+@media (max-width: 360px) {
+    .guide-text { display: none; }
+    .btn-guide-floating { padding: 8px; border-radius: 50%; width: 36px; height: 36px; justify-content: center; }
+}
+

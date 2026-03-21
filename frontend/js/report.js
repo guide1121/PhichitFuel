@@ -260,7 +260,7 @@ function renderReportModalOptions() {
 
 function openReportModal(station) {
     if(!getCurrentUser()) {
-        alert("กรุณาเข้าสู่ระบบก่อนทำการรายงาน (ไปที่หน้าแรก)");
+        alert("🔒 กรุณาเข้าสู่ระบบก่อนทำการรายงาน\n\nการเข้าสู่ระบบช่วยให้ข้อมูลมีความน่าเชื่อถือและป้องกันการรายงานเท็จครับ (เข้าสู่ระบบได้ที่หน้าแรก)");
         return;
     }
     

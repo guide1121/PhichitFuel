@@ -21,8 +21,8 @@
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     
-    --header-height: 70px;
-    --bottom-nav-height: 70px;
+    --header-height: 60px;
+    --bottom-nav-height: 55px;
 }
 
 body {
@@ -38,36 +38,35 @@ body {
    Glass & Neumorphism Utility
 --------------------------- */
 .glass-effect, .glass-header, .glass-sheet {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: var(--bg-main);
 }
 
 .neumorphic {
     background-color: var(--bg-main);
-    border-radius: 20px;
-    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .neumorphic-inset {
     background-color: var(--bg-main);
-    border-radius: 12px;
-    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .neumorphic-btn {
     border: none;
-    background-color: var(--bg-main);
-    border-radius: 25px;
-    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    background-color: var(--accent-orange);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: all 0.2s;
     cursor: pointer;
     font-family: inherit;
     font-weight: 700;
 }
 .neumorphic-btn:active {
-    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.7);
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* ---------------------------
@@ -84,7 +83,11 @@ body {
     padding-left: 15px;
     padding-right: 15px;
     z-index: 1000;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); /* Soft drop shadow */
+    pointer-events: none; /* Let clicks pass through empty space */
+}
+
+.header-left, .header-right {
+    pointer-events: auto; /* Buttons inside header should be clickable */
 }
 
 .header-center {
@@ -165,7 +168,9 @@ body {
     display: flex;
     align-items: center;
     padding: 0 15px;
-    border-radius: 25px;
+    /* removed search box shadow because header is now transparent, maybe the search box needs to pop */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Slightly darker shadow so it floats distinctly */
+    background: white; /* Ensure search box has a solid background */
 }
 .search-icon {
     width: 20px; height: 20px;
@@ -218,6 +223,39 @@ body {
     width: 24px; height: 24px;
 }
 
+/* Styling for middle prominent button */
+.nav-item-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    top: -20px; /* pull up */
+    z-index: 1200;
+}
+.btn-orange-circle {
+    width: 50px;
+    height: 50px;
+    background-color: var(--accent-orange);
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 5px;
+    transition: transform 0.2s;
+}
+.btn-orange-circle:active {
+    transform: scale(0.95);
+}
+.center-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
 /* ---------------------------
    Bottom Sheet (Card ปั๊มน้ำมัน)
 --------------------------- */
@@ -226,22 +264,19 @@ body {
     bottom: var(--bottom-nav-height);
     left: 0; right: 0;
     background: var(--bg-main);
-    border-radius: 24px 24px 0 0;
+    border-radius: 16px 16px 0 0;
     padding: 0 20px 20px 20px;
     z-index: 1050;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.05); /* replace fuzzy shadow */
 }
 .bottom-sheet.closed {
-    transform: translateY(calc(100% - 70px)); /* โผล่มาแค่นิดเดียวให้รู้ว่ามี */
+    transform: translateY(calc(100% - 110px)); /* โผล่มาให้เห็นหัวข้อ กรุณาเลือกปั๊ม */
 }
 
-/* ค่อยๆ ทำให้โปร่งแสงเป็น Glassmorphic เล็กน้อย */
+/* เปลี่ยนจาก Glassmorphic เป็นสีทึบ */
 .glass-sheet {
-    background: rgba(240, 242, 245, 0.85); /* F0F2F5 with opacity */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    background: var(--bg-main);
 }
 
 .sheet-handle {
@@ -326,15 +361,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.5); /* This is just an overlay, it's fine. But wait, I'll keep it */
 }
 .modal-content {
     background-color: var(--bg-main);
     padding: 25px;
-    border-radius: 24px;
+    border-radius: 16px;
     width: 90%;
     max-width: 400px;
     position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* flat shadow instead of neumorphic */
 }
 .close-modal {
     position: absolute;
@@ -364,3 +400,95 @@ body {
 .btn-green { background-color: #10B981; }
 .btn-yellow { background-color: #F59E0B; color: #fff; }
 .btn-red { background-color: #EF4444; }
+
+/* ---------------------------
+   Report Bottom Sheet & Grouping UX
+--------------------------- */
+.report-bottom-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    max-height: 85vh;
+    background: var(--bg-main);
+    border-radius: 20px 20px 0 0;
+    padding: 0 20px 20px 20px;
+    z-index: 2500;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+    overflow-y: auto;
+}
+.report-bottom-sheet.open {
+    transform: translateY(0);
+}
+
+.report-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2400;
+    display: none;
+}
+.report-overlay.open {
+    display: block;
+}
+
+.fuel-report-group {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.fuel-report-header {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+.report-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.btn-status-select {
+    flex: 1;
+    min-width: 70px;
+    padding: 8px 4px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.btn-status-select.selected {
+    border-width: 2px;
+    color: #fff;
+    transform: scale(1.02);
+}
+.btn-status-select.selected[data-status="Available"] { background: #10B981; border-color: #059669; }
+.btn-status-select.selected[data-status="Limited"] { background: #F59E0B; border-color: #D97706; }
+.btn-status-select.selected[data-status="Out of stock"] { background: #EF4444; border-color: #DC2626; }
+.btn-status-select.selected[data-status="Unknown"] { background: #9CA3AF; border-color: #4B5563; }
+
+.btn-confirm-report {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--accent-orange);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    margin-top: 15px;
+    box-shadow: 0 4px 12px rgba(255,140,0,0.3);
+    cursor: pointer;
+}
+.btn-confirm-report:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 6px rgba(255,140,0,0.3);
+}

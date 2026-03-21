@@ -15,14 +15,21 @@ async function processReport(db, data) {
   const now = admin.firestore.Timestamp.now();
 
   try {
-    // 1. ตรวจสอบ Rate Limit (1 ครั้ง/ปั๊ม/5 นาที)
+    // 1. ตรวจสอบ Rate Limit (1 ครั้ง/ชนิดน้ำมัน/ปั๊ม/5 นาที)
     const recentReportQuery = await db.collection('reports')
       .where('userId', '==', userId)
       .where('stationId', '==', stationId)
       .where('timestamp', '>', new Date(Date.now() - RATE_LIMIT_MINUTES * 60 * 1000))
       .get();
 
-    if (!recentReportQuery.empty) {
+    let hasRecentSameFuel = false;
+    recentReportQuery.forEach(doc => {
+      if (doc.data().fuelType === fuelType) {
+        hasRecentSameFuel = true;
+      }
+    });
+
+    if (hasRecentSameFuel) {
       throw new Error('คุณส่งรายงานบ่อยเกินไป กรุณารอ 5 นาทีสำหรับการรายงานปั๊มนี้อีกครั้ง');
     }
 

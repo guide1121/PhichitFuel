@@ -7,7 +7,7 @@ const BACKEND_API_URL = 'https://phichitfuel.onrender.com/api/report';
 
 // UI Elements 
 const searchInput = document.getElementById('search-input');
-const bottomSheet = document.getElementById('station-bottom-sheet');
+const bottomSheet = document.getElementById('bottom-sheet');
 const sheetDataState = document.getElementById('sheet-data-state');
 const sheetStationName = document.getElementById('sheet-station-name');
 const sheetFuelGrid = document.getElementById('sheet-fuel-grid');

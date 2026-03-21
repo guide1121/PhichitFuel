@@ -8,17 +8,17 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     
-    <!-- Google Fonts: Noto Sans Thai -->
+    <!-- Google Fonts: Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <!-- ส่วนหัว (Header) -->
-    <header class="app-header glass-header">
+    <header class="app-header glass-header" style="background: white; border-bottom: 1px solid #e5e7eb;">
         <div class="header-left" style="display:flex; align-items:center; gap:8px;">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 6C3 4.89543 3.89543 4 5 4H15C16.1046 4 17 4.89543 17 6V22H3V6Z" fill="#FF8C00"/>
@@ -52,8 +52,22 @@
             <input type="text" id="search-input" placeholder="พิมพ์ชื่อปั๊ม หรือ อำเภอ..." class="input-transparent">
         </div>
 
+        <!-- คำอธิบายสัญลักษณ์ (Legend) -->
+        <div id="map-legend" style="position: absolute; bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 65px); left: 15px; z-index: 1000; background: white; padding: 10px 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">สถานะน้ำมัน</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;"><div style="width:12px; height:12px; border-radius:50%; background:#10B981; border: 1px solid #059669;"></div> มีน้ำมัน</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;"><div style="width:12px; height:12px; border-radius:50%; background:#F59E0B; border: 1px solid #D97706;"></div> รอนาน</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;"><div style="width:12px; height:12px; border-radius:50%; background:#EF4444; border: 1px solid #DC2626;"></div> หมด</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;"><div style="width:12px; height:12px; border-radius:50%; background:#9CA3AF; border: 1px solid #4B5563;"></div> ไม่ทราบ</div>
+        </div>
+
+        <!-- ปุ่มเกี่ยวกับโครงการ (Info) -->
+        <button id="btn-info" class="btn-info-floating" title="เกี่ยวกับโครงการ" style="bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 15px); font-family: serif; font-weight: bold; font-style: italic;">
+            i
+        </button>
+
         <!-- ปุ่มกลับไปตำแหน่งปัจจุบัน -->
-        <button id="btn-my-location" style="position: absolute; bottom: 120px; right: 15px; z-index: 1000; width: 44px; height: 44px; border-radius: 12px; background: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; display: flex; justify-content: center; align-items: center; color: #1F2937;">
+        <button id="btn-my-location" style="position: absolute; bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 160px); right: 15px; z-index: 1000; width: 44px; height: 44px; border-radius: 12px; background: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; display: flex; justify-content: center; align-items: center; color: #1F2937;">
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <circle cx="12" cy="12" r="3"></circle>
@@ -62,19 +76,11 @@
     </main>
 
     <!-- บัตรข้อมูลปั๊มน้ำมัน (Bottom Sheet) -->
-    <div id="station-bottom-sheet" class="bottom-sheet glass-sheet closed">
-        <!-- แถบดึง (Drag Handle) -->
-        <div class="sheet-handle"></div>
-
-        <div id="sheet-empty-state" class="sheet-content">
-            <h3 style="text-align:center; color: var(--text-main); margin-top:10px; font-size: 16px;">กรุณาเลือกปั๊มน้ำมันบนแผนที่</h3>
-            <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom: 15px;">หรือเลือกปั๊มที่ใกล้คุณที่สุด</p>
-            <div id="nearest-stations-list" style="max-height: 250px; overflow-y: auto;">
-                <!-- Nearest stations will be rendered here by JS -->
-            </div>
-        </div>
-
-        <div id="sheet-data-state" class="sheet-content hidden">
+    <div id="bottom-sheet" class="bottom-sheet closed neumorphic-top">
+        <div class="sheet-handle" onclick="toggleBottomSheet()"></div>
+        
+        <!-- ข้อมูลปั๊มที่ถูกเลือก (กดจากหมุด) -->
+        <div id="sheet-data-state" class="sheet-content">
             <h2 id="sheet-station-name" style="margin-top:0; margin-bottom: 5px; color:var(--text-main); font-size: 18px; line-height: 1.4;">ชื่อปั๊มน้ำมัน</h2>
             
             <div style="display:flex; align-items:center; gap:8px; margin-top: 10px; margin-bottom: 15px; flex-wrap: wrap;">
@@ -117,7 +123,7 @@
             </a>
         </div>
 
-        <a href="#" class="nav-item">
+        <a href="data.html" class="nav-item">
             <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>ข้อมูล</span>
         </a>
@@ -183,6 +189,75 @@
         </div>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+
+    <!-- หน้าต่างเกี่ยวกับโครงการ (About Modal) -->
+    <div id="about-overlay" class="modal-overlay hidden" style="z-index: 3000;">
+        <div class="about-modal">
+            <div class="about-header" style="padding: 20px 24px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3f4f6;">
+                <h2 style="color: var(--accent-orange); margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px;">
+                    ℹ️ เกี่ยวกับ Let's Help พิจิตร
+                </h2>
+                <button id="close-about" style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer;">✕</button>
+            </div>
+            
+            <div class="about-body">
+                <div class="about-section">
+                    <h3 style="color: var(--accent-orange); font-size: 16px; margin-bottom: 8px;">จุดประสงค์โครงการ</h3>
+                    <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin: 0;">
+                        แอปพลิเคชันนี้สร้างขึ้นเพื่อเป็นสาธารณประโยชน์ในการแบ่งปันข้อมูลและสถานะเชื้อเพลิงในช่วงสถานการณ์วิกฤต โดยอาศัยการรายงานข้อมูลแบบ Crowdsourcing จากอาสาสมัครผู้ใช้งานจริง เพื่อช่วยเหลือชาวพิจิตรในการวางแผนการเดินทางและเข้าถึงทรัพยากรที่จำเป็น
+                    </p>
+                </div>
+
+                <div class="about-section" style="background: #fff1f2; border: 1px solid #ffe4e6; padding: 15px; border-radius: 12px; margin-top: 20px;">
+                    <h3 style="font-size: 15px; margin-top: 0; margin-bottom: 8px; color: #e11d48;">⚠️ ข้อความปฏิเสธความรับผิดชอบ</h3>
+                    <ul style="font-size: 13px; color: #9f1239; margin: 0; padding-left: 18px; line-height: 1.6;">
+                        <li>ข้อมูลทั้งหมดได้รับจากการรายงานของผู้ใช้รายอื่น ความถูกต้องอาจเปลี่ยนแปลงได้ตามเวลา</li>
+                        <li>ผู้จัดทำไม่รับผิดชอบต่อความเสียหายใดๆ ที่อาจเกิดขึ้นจากการใช้ข้อมูลในแอปพลิเคชันนี้</li>
+                        <li>กรุณาตรวจสอบข้อมูลกับสถานีบริการโดยตรงอีกครั้งเพื่อความแน่นอน</li>
+                    </ul>
+                </div>
+
+                <div class="about-section" style="margin-top: 20px;">
+                    <h3 style="color: var(--accent-orange); font-size: 16px; margin-bottom: 10px;">แหล่งข้อมูล & เทคโนโลยี (Tech Stack)</h3>
+                    <ul style="font-size: 14px; color: #4b5563; margin: 0; padding-left: 18px; line-height: 1.8;">
+                        <li><strong>Frontend:</strong> HTML5, Vanilla CSS, JavaScript (ES6+)</li>
+                        <li><strong>Maps:</strong> Leaflet.js & Google Maps Tile Services</li>
+                        <li><strong>Database & Auth:</strong> Firebase (Firestore, Authentication)</li>
+                        <li><strong>Backend API:</strong> Node.js & Express (Deployed on Render)</li>
+                        <li><strong>Design Support:</strong> Google Material Icons & Noto Sans Thai Font</li>
+                    </ul>
+                </div>
+
+                <div class="about-section" style="margin-top: 20px;">
+                    <h3 style="color: var(--accent-orange); font-size: 16px; margin-bottom: 8px;">นโยบายความเป็นส่วนตัว</h3>
+                    <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin: 0;">
+                        แอปพลิเคชันขอเข้าถึงตำแหน่งที่ตั้ง (GPS) เพื่อใช้ในการคำนวณระยะทางไปยังปั๊มน้ำมันเท่านั้น โดยไม่มีการจัดเก็บข้อมูลพิกัดส่วนบุคคลหรือประวัติการเดินทางไว้ในเซิร์ฟเวอร์
+                    </p>
+                </div>
+
+                <div class="about-section" style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+                    <h3 style="color: var(--accent-orange); font-size: 16px; margin-top: 0; margin-bottom: 8px;">ติดต่อและแจ้งปัญหา</h3>
+                    <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin: 0;">
+                        หากพบข้อมูลสถานีไม่ถูกต้อง หรือต้องการแจ้งปัญหาการใช้งาน สามารถติดต่อผู้พัฒนาได้ที่:
+                        <br>
+                        <strong>Instagram:</strong> <a href="https://instagram.com/nphr._" target="_blank" style="color: #4b5563; text-decoration: underline;">@nphr._</a>
+                    </p>
+                </div>
+
+                <div class="about-developer" style="margin-top: 25px; text-align: center; padding-bottom: 10px;">
+                    <p style="font-size: 14px; font-weight: bold; color: #1f2937; margin-bottom: 4px;">Naphat Phoruang</p>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">นักศึกษาคณะ ICT มหาวิทยาลัยมหิดล</p>
+                    <p style="font-size: 12px; color: #9ca3af;">Version 1.0.0</p>
+                </div>
+            </div>
+
+            <div class="about-footer-sticky">
+                <button id="btn-close-about-footer" class="btn-confirm-report" style="margin: 0; width: 100%;">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase SDKs -->
     <script type="module" src="./js/firebase.js"></script>

@@ -119,9 +119,11 @@ async function processReport(db, data) {
 async function cleanupExpiredData(db) {
   try {
     const expiredTime = new Date(Date.now() - DATA_EXPIRATION_HOURS * 60 * 60 * 1000);
+    
+    // ดึงเฉพาะข้อมูลที่ไม่ได้อัปเดตเกิน 2 ชั่วโมง
+    // ลดเงื่อนไข != 'No data' ออกเพื่อให้ Query ทำงานได้โดยไม่ต้องใช้ Composite Index ซับซ้อน
     const expiredStationsQuery = await db.collection('stations')
       .where('lastUpdated', '<', expiredTime)
-      .where('status', '!=', 'No data') // เลือกเฉพาะที่ยังมีสถานะอื่นอยู่ ให้กลายเป็น No data
       .get();
 
     if (expiredStationsQuery.empty) {
@@ -129,15 +131,40 @@ async function cleanupExpiredData(db) {
     }
 
     const batch = db.batch();
+    const now = admin.firestore.Timestamp.now();
+    let updatedCount = 0;
+
     expiredStationsQuery.forEach(doc => {
-      batch.update(doc.ref, { 
-          status: 'No data',
-          lastUpdated: admin.firestore.Timestamp.now()
-      });
+      const data = doc.data();
+      
+      // ตรวจสอบว่าต้องอัปเดตจริงหรือไม่ (ถ้าเป็น No data อยู่แล้วทั้งภาพรวมและรายน้ำมัน ก็ข้าม)
+      let needsUpdate = data.status !== 'No data';
+      const fuelUpdates = {};
+      
+      if (data.fuels) {
+        Object.keys(data.fuels).forEach(fuelKey => {
+           if (data.fuels[fuelKey].status !== 'No data') {
+             needsUpdate = true;
+             fuelUpdates[`fuels.${fuelKey}.status`] = 'No data';
+             fuelUpdates[`fuels.${fuelKey}.lastUpdated`] = now;
+           }
+        });
+      }
+
+      if (needsUpdate) {
+        batch.update(doc.ref, { 
+            status: 'No data',
+            lastUpdated: now,
+            ...fuelUpdates
+        });
+        updatedCount++;
+      }
     });
 
-    await batch.commit();
-    console.log(`Cleaned up ${expiredStationsQuery.size} expired stations.`);
+    if (updatedCount > 0) {
+      await batch.commit();
+      console.log(`[Cleanup] Successfully reset ${updatedCount} expired stations to 'No data'.`);
+    }
   } catch (error) {
     console.error('Error in cleanupExpiredData:', error);
   }
